@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: capos-content-service
+    runtime: node
+    rootDir: service
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20

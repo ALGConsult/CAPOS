@@ -1,0 +1,104 @@
+/* CAPOS – scoped styles to avoid HubSpot conflicts */
+
+.capos-menu {
+  position: fixed;
+  z-index: 2147483647;
+  min-width: 180px;
+  padding: 4px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-left: 4px;
+}
+
+.capos-menuItem {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.capos-menuItem:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.capos-panelOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  left: 64px;
+  top: 56px;
+  right: 0;
+  bottom: 0;
+  background: #f5f8fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.capos-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.capos-panelHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e3e8ee;
+  background: #fff;
+}
+
+.capos-panelTitle {
+  flex: 1;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.capos-closeBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #33475b;
+}
+
+.capos-closeBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.capos-panelContent {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+.capos-block {
+  margin-bottom: 16px;
+}
+
+.capos-block h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.capos-block p {
+  margin: 0;
+  font-size: 14px;
+  color: #33475b;
+}

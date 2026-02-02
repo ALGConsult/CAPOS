@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "CAPOS for HubSpot",
+  "version": "1.0.0",
+  "description": "Augments HubSpot with CAPOS content panel and navigation",
+  "permissions": ["storage"],
+  "host_permissions": ["https://app.hubspot.com/*", "https://*.hubspot.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://app.hubspot.com/*"],
+      "js": ["src/contentScript/main.tsx"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "options.html"
+  }
+}

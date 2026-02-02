@@ -1,0 +1,109 @@
+const CAPOS_NAV_ID = "capos-nav-item";
+const CAPOS_MARKER = "data-capos-injected";
+
+function findLeftRail(): Element | null {
+  // HubSpot global nav: common selectors for left sidebar (order matters)
+  const selectors = [
+    "[data-selenium-test='nav-primary']",
+    "[data-nav-primary]",
+    ".private-global-nav",
+    "[class*='PrivateGlobalNav']",
+    "[class*='global-nav']",
+    "[class*='nav-primary']",
+    "nav[role='navigation']",
+    "[class*='sidebar']",
+    "aside[class*='nav']",
+    "aside",
+  ];
+  for (const sel of selectors) {
+    const el = document.querySelector(sel);
+    if (el) return el;
+  }
+  // Fallback: first fixed left column
+  const fixed = document.querySelectorAll("[style*='position: fixed'], [style*='position:fixed']");
+  for (const el of fixed) {
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 100 && rect.left < 150) return el;
+  }
+  return null;
+}
+
+function findLastNavItem(rail: Element): Element | null {
+  const lists = rail.querySelectorAll("ul, [role='list'], [role='menu']");
+  let last: Element | null = null;
+  lists.forEach((ul) => {
+    const items = ul.querySelectorAll("li, [role='menuitem'], button, a");
+    items.forEach((item) => {
+      if (item.closest(`[${CAPOS_MARKER}]`)) return;
+      last = item;
+    });
+  });
+  if (last) return last;
+  const buttons = rail.querySelectorAll("button, a");
+  return buttons[buttons.length - 1] ?? null;
+}
+
+function getParentList(el: Element): Element | null {
+  return el.closest("ul, [role='list'], [role='menu']") ?? el.parentElement;
+}
+
+export interface CaposNavCallbacks {
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onIconRef: (el: HTMLElement | null) => void;
+}
+
+export function ensureCaposNavItem(callbacks: CaposNavCallbacks): () => void {
+  if (document.getElementById(CAPOS_NAV_ID)) return () => {};
+
+  const rail = findLeftRail();
+  if (!rail) return () => {};
+
+  const last = findLastNavItem(rail);
+  const container = last ? getParentList(last) ?? rail : rail;
+
+  const li = document.createElement("li");
+  li.id = CAPOS_NAV_ID;
+  li.setAttribute(CAPOS_MARKER, "true");
+  li.style.cssText = "list-style:none;margin:0;padding:0;";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.setAttribute("aria-label", "CAPOS");
+  btn.style.cssText =
+    "display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:none;background:transparent;cursor:pointer;border-radius:6px;";
+  btn.addEventListener("mouseenter", () => {
+    btn.style.background = "rgba(0,0,0,0.06)";
+    callbacks.onMouseEnter();
+  });
+  btn.addEventListener("mouseleave", () => {
+    btn.style.background = "transparent";
+    callbacks.onMouseLeave();
+  });
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 450 340");
+  svg.setAttribute("width", "24");
+  svg.setAttribute("height", "24");
+  svg.style.cssText = "display:block;flex-shrink:0;";
+  svg.innerHTML = `
+    <path fill="#2D0240" d="M255,1 C272,1 289,1 306.6,1.4 C310.7,2.7 314.3,3.6 317.9,4.5 C352,12.7 381.4,29 405.4,54.8 C428.6,79.7 443,108.8 449,142.1 C451,162 451,179 450.6,196.6 C439.3,242 423,271.4 397.2,295.4 C372.3,318.6 343.2,333 309.9,339.1 C290,341 273,341 255.4,340.6 C189,319.4 160.5,297.1 139.3,265.5 C111.1,179.8 C95.1,176 71.8,176.1 C52.5,176 C46.4,176 C1,198 C1,152 C13,146.4 C40.1,153.6 C65.8,163.2 C106.8,166.1 C113.4,139.5 C164.8,46.6 C252.1,2.9 C255,1 M361.2,88.3 C395.5,122.4 405.7,174.2 386.4,216.4 C273.2,284.7 C167,176.4 C287.8,330.8 C123.1,258.1 C183.1,237.4 C249.1,282.8 C360.9,88.1z"/>
+    <path fill="#FE4057" d="M360.9,88.1 C330.3,60.1 294.8,49.9 254.8,59.4 C167.4,161.1 C121.9,165.7 C249.8,14.2 C439.8,152.2 C287.8,330.8 C169.5,209.6 C273.2,284.7 C360.9,88.1z"/>
+    <path fill="#FEFEFE" d="M324.4,213.4 C354.5,182.3 306.7,116.5 C221.8,161.7 C177.6,165.8 C274.4,66.3 C385.8,165.1 C284.8,274.8 C219.8,176.3 C324.4,213.4z"/>
+    <path fill="#FE4057" d="M238.2,196.7 C230.1,176 C279.7,176 C231.3,166 C295.7,219 C238.2,196.7z"/>
+  `;
+  btn.appendChild(svg);
+
+  li.appendChild(btn);
+  if (last && last.nextSibling) {
+    container.insertBefore(li, last.nextSibling);
+  } else {
+    container.appendChild(li);
+  }
+
+  callbacks.onIconRef(btn);
+  return () => {
+    callbacks.onIconRef(null);
+    li.remove();
+  };
+}
