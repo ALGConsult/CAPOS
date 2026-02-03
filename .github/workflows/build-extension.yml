@@ -2,7 +2,8 @@ name: Build extension (dist artifact)
 
 on:
   push:
-    branches: ["**"]
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build-extension:
